@@ -38,4 +38,41 @@ class ValueHelper extends TypeHelper {
 
     return null;
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    if (targetType.isDynamic || targetType.isObject) {
+      return {
+        ...schemaMeta(targetType, context),
+      };
+    }
+
+    final typeName = _typeName(targetType);
+    if (typeName != null) {
+      return {
+        ...schemaMeta(targetType, context),
+        'type': typeName,
+      };
+    }
+  }
+
+  static String _typeName(DartType type) {
+    if (const TypeChecker.fromUrl('dart:core#null').isAssignableFromType(type)) {
+      return 'null';
+    }
+    if (const TypeChecker.fromUrl('dart:core#bool').isAssignableFromType(type)) {
+      return 'boolean';
+    }
+    if (const TypeChecker.fromUrl('dart:core#String').isAssignableFromType(type)) {
+      return 'string';
+    }
+    if (const TypeChecker.fromUrl('dart:core#int').isAssignableFromType(type)) {
+      return 'integer';
+    }
+    if (const TypeChecker.fromUrl('dart:core#num').isAssignableFromType(type)) {
+      return 'number';
+    }
+
+    return null;
+  }
 }

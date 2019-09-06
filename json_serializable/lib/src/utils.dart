@@ -246,3 +246,10 @@ String _getHexLiteral(String input) {
   final value = rune.toRadixString(16).toUpperCase().padLeft(2, '0');
   return '\\x$value';
 }
+
+String schemaRefForType(InterfaceType type) {
+  return '#/definitions/${schemaIdForType(type)}';
+}
+String schemaIdForType(InterfaceType type) {
+  return '${type.element.name}:${type.element.librarySource.uri}';
+}

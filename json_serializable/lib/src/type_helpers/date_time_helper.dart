@@ -20,4 +20,17 @@ class DateTimeHelper extends TypeHelper {
           DartType targetType, String expression, TypeHelperContext context) =>
       dateTimeString.deserialize(
           targetType, expression, context.nullable, false);
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    if (!dateTimeString.matches(targetType)) {
+      return null;
+    }
+
+    return {
+      ...schemaMeta(targetType, context),
+      'type': 'string',
+      'format': 'date-time',
+    };
+  }
 }

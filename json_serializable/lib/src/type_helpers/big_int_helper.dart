@@ -19,4 +19,15 @@ class BigIntHelper extends TypeHelper {
   String deserialize(
           DartType targetType, String expression, TypeHelperContext context) =>
       bigIntString.deserialize(targetType, expression, context.nullable, false);
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    if (!bigIntString.matches(targetType)) return null;
+
+    return {
+      ...schemaMeta(targetType, context),
+      'type': 'string',
+      'pattern': r'^[+-]?(?:0x)?[0-9]+$',
+    };
+  }
 }

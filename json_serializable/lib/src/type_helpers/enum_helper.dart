@@ -64,6 +64,19 @@ class EnumHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
     return '$functionName(${args.join(', ')})';
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContextWithConfig context) {
+    final enumMap = enumFieldsMap(targetType);
+    if (enumMap == null) {
+      return null;
+    }
+
+    return {
+      ...super.schemaMeta(targetType, context),
+      'enum': enumMap.values.toList(),
+    };
+  }
 }
 
 String _constMapName(DartType targetType) => '_\$${targetType.name}EnumMap';

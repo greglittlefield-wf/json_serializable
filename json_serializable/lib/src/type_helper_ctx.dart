@@ -61,8 +61,14 @@ class TypeHelperCtx
       expression,
       (TypeHelper th) => th.deserialize(targetType, expression, this));
 
-  Object _run(DartType targetType, String expression,
-          Object invoke(TypeHelper instance)) =>
+  @override
+  Map<String, dynamic> schema(DartType targetType) => _run(
+      targetType,
+      '',
+      (TypeHelper th) => th.schema(targetType, this));
+
+  T _run<T extends Object>(DartType targetType, String expression,
+      T invoke(TypeHelper instance)) =>
       _helperCore.allTypeHelpers.map(invoke).firstWhere((r) => r != null,
           orElse: () => throw UnsupportedTypeError(
               targetType, expression, _notSupportedWithTypeHelpersMsg));

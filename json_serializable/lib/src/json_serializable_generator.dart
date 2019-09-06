@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -94,7 +96,7 @@ class JsonSerializableGenerator
   }
 }
 
-class _GeneratorHelper extends HelperCore with EncodeHelper, DecodeHelper {
+class _GeneratorHelper extends HelperCore with EncodeHelper, DecodeHelper, JsonSchemaHelper {
   final JsonSerializableGenerator _generator;
   final _addedMembers = <String>{};
 
@@ -166,6 +168,8 @@ class _GeneratorHelper extends HelperCore with EncodeHelper, DecodeHelper {
     if (config.createToJson) {
       yield* createToJson(accessibleFieldSet);
     }
+
+    yield '// schema: ${jsonEncode(createSchema(accessibleFieldSet))}';
 
     yield* _addedMembers;
   }

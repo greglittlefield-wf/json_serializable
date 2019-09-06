@@ -26,6 +26,8 @@ abstract class TypeHelperContext {
   /// representing the serialization of a value.
   Object deserialize(DartType fieldType, String expression);
 
+  Map<String, dynamic> schema(DartType fieldType);
+
   /// Adds [memberContent] to the set of generated, top-level members.
   void addMember(String memberContent);
 }
@@ -80,6 +82,13 @@ abstract class TypeHelper<T extends TypeHelperContext> {
   ///   "new ${targetType.name}.fromInt($expression)";
   /// ```.
   Object deserialize(DartType targetType, String expression, T context);
+
+  Map<String, dynamic> schema(DartType targetType, T context);
+
+  Map<String, dynamic> schemaMeta(DartType targetType, T context) => {
+//    'title': context.fieldElement.name,
+//    'description': context.fieldElement.documentationComment,
+  };
 }
 
 Object commonNullPrefix(

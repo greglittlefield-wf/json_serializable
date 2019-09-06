@@ -1,0 +1,282 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "BuildConfig",
+  "title": "BuildConfig",
+  "description": "The parsed values from a `build.yaml` file.",
+  "properties": {
+    "builders": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/BuilderDefinition"
+      },
+      "description": "All the `builders` defined in a `build.yaml` file."
+    },
+    "post_process_builders": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/PostProcessBuilderDefinition"
+      },
+      "description": "All the `post_process_builders` defined in a `build.yaml` file."
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/BuildTarget"
+      },
+      "description": "All the `targets` defined in a `build.yaml` file."
+    },
+    "global_options": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/GlobalBuilderConfig"
+      }
+    }
+  },
+  "required": [],
+  "additionalProperties": false,
+  "definitions": {
+    "BuildTarget": {
+      "$id": "BuildTarget",
+      "title": "BuildTarget",
+      "properties": {
+        "builders": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/TargetBuilderConfig"
+          },
+          "description": "A map from builder key to the configuration used for this target.\n\nBuilder keys are in the format `\"$package|$builder\"`. This does not\nrepresent the full set of builders that are applied to the target, only\nthose which have configuration customized against the default."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "$ref": "#/definitions/InputSet"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "TargetBuilderConfig": {
+      "$id": "TargetBuilderConfig",
+      "title": "TargetBuilderConfig",
+      "description": "The configuration a particular [BuildTarget] applies to a Builder.\n\nBuild targets may have builders applied automatically based on\n[BuilderDefinition.autoApply] and may override with more specific\nconfiguration.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Overrides the setting of whether the Builder would run on this target.\n\nBuilders may run on this target by default based on the `apply_to`\nargument, set to `false` to disable a Builder which would otherwise run.\n\nBy default including a config for a Builder enables that builder."
+        },
+        "generate_for": {
+          "$ref": "#/definitions/InputSet",
+          "description": "Sources to use as inputs for this Builder in glob format.\n\nThis is always a subset of the `include` argument in the containing\n[BuildTarget]. May be `null` in which cases it will be all the sources in\nthe target."
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "The options to pass to the `BuilderFactory` when constructing this\nbuilder.\n\nThe `options` key in the configuration.\n\nIndividual keys may be overridden by either [devOptions] or\n[releaseOptions]."
+        },
+        "dev_options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Overrides for [options] in dev mode."
+        },
+        "release_options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Overrides for [options] in release mode."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "GlobalBuilderConfig": {
+      "$id": "GlobalBuilderConfig",
+      "title": "GlobalBuilderConfig",
+      "description": "The configuration for a Builder applied globally.",
+      "properties": {
+        "options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "The options to pass to the `BuilderFactory` when constructing this\nbuilder.\n\nThe `options` key in the configuration.\n\nIndividual keys may be overridden by either [devOptions] or\n[releaseOptions]."
+        },
+        "dev_options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Overrides for [options] in dev mode."
+        },
+        "release_options": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Overrides for [options] in release mode."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "BuilderDefinition": {
+      "$id": "BuilderDefinition",
+      "title": "BuilderDefinition",
+      "description": "Definition of a builder parsed from the `builders` section of `build.yaml`.",
+      "properties": {
+        "builder_factories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The names of the top-level methods in [import] from args -> Builder."
+        },
+        "import": {
+          "type": "string",
+          "description": "The import to be used to load `clazz`."
+        },
+        "build_extensions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": "A map from input extension to the output extensions created for matching\ninputs."
+        },
+        "target": {
+          "type": "string",
+          "description": "The name of the dart_library target that contains `import`.\n\nMay be null or unreliable and should not be used."
+        },
+        "auto_apply": {
+          "enum": [
+            "none",
+            "dependents",
+            "all_packages",
+            "root_package"
+          ],
+          "description": "Which packages should have this builder applied automatically."
+        },
+        "required_inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of file extensions which are required to run this builder.\n\nNo builder which outputs any extension in this list is allowed to run\nafter this builder."
+        },
+        "runs_before": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Builder keys in `$package:$builder` format which should only be run after\nthis Builder."
+        },
+        "applies_builders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Builder keys in `$package:$builder` format which should be run on any\ntarget which also runs this Builder."
+        },
+        "is_optional": {
+          "type": "boolean",
+          "description": "Whether this Builder should be deferred until it's output is requested.\n\nOptional builders are lazy and will not run unless some later builder\nrequests one of it's possible outputs through either `readAs*` or\n`canRead`."
+        },
+        "build_to": {
+          "enum": [
+            "source",
+            "cache"
+          ],
+          "description": "Where the outputs of this builder should be written."
+        },
+        "defaults": {
+          "$ref": "#/definitions/TargetBuilderConfigDefaults"
+        }
+      },
+      "required": [
+        "builder_factories",
+        "import",
+        "build_extensions"
+      ],
+      "additionalProperties": false
+    },
+    "PostProcessBuilderDefinition": {
+      "$id": "PostProcessBuilderDefinition",
+      "title": "PostProcessBuilderDefinition",
+      "description": "The definition of a `PostProcessBuilder` in the `post_process_builders`\nsection of a `build.yaml`.",
+      "properties": {
+        "builder_factory": {
+          "type": "string",
+          "description": "The name of the top-level method in [import] from\nMap<String, dynamic> -> Builder."
+        },
+        "import": {
+          "type": "string",
+          "description": "The import to be used to load `clazz`."
+        },
+        "input_extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of input extensions for this builder.\n\nMay be null or unreliable and should not be used."
+        },
+        "target": {
+          "type": "string",
+          "description": "The name of the dart_library target that contains `import`.\n\nMay be null or unreliable and should not be used."
+        },
+        "defaults": {
+          "$ref": "#/definitions/TargetBuilderConfigDefaults"
+        }
+      },
+      "required": [
+        "builder_factory",
+        "import"
+      ],
+      "additionalProperties": false
+    },
+    "TargetBuilderConfigDefaults": {
+      "$id": "TargetBuilderConfigDefaults",
+      "title": "TargetBuilderConfigDefaults",
+      "description": "Default values that builder authors can specify when users don't fill in the\ncorresponding key for [TargetBuilderConfig].",
+      "properties": {
+        "generate_for": {
+          "$ref": "#/definitions/InputSet"
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "dev_options": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "release_options": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "InputSet": {
+      "$id": "InputSet",
+      "title": "InputSet",
+      "description": "A filter on files inputs or sources.\n\nTakes a list of strings in glob format for [include] and [exclude]. Matches\nthe `glob()` function in skylark.",
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The globs to include in the set.\n\nMay be null or empty which means every possible path (like `'**'`)."
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The globs as a subset of [include] to remove from the set.\n\nMay be null or empty which means every path in [include]."
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

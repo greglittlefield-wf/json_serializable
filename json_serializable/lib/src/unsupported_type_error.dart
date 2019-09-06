@@ -14,4 +14,7 @@ class UnsupportedTypeError extends Error {
   final String expression;
 
   UnsupportedTypeError(this.type, this.expression, this.reason);
+
+  @override
+  String toString() => 'UnsupportedTypeError: type: $type, reason: $reason';
 }

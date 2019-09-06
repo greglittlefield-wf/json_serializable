@@ -110,6 +110,24 @@ class MapHelper extends TypeHelper<TypeHelperContextWithConfig> {
     return '($expression $mapCast)$optionalQuestion.map('
         '($_keyParam, $closureArg) => MapEntry($keyUsage, $itemSubVal),)';
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContextWithConfig context) {
+    if (!coreMapTypeChecker.isAssignableFromType(targetType)) {
+      return null;
+    }
+    final args = typeArgumentsOf(targetType, coreMapTypeChecker);
+    assert(args.length == 2);
+
+    // final keyType = args[0];
+    final valueType = args[1];
+
+    return {
+      'type': 'object',
+      // match all properties
+      'additionalProperties': context.schema(valueType),
+    };
+  }
 }
 
 final _intString = ToFromStringHelper('int.parse', 'toString()', 'int');

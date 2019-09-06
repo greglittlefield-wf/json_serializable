@@ -73,6 +73,25 @@ class JsonHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
     return commonNullPrefix(context.nullable, expression, output).toString();
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContextWithConfig context) {
+    if (targetType is InterfaceType && !targetType.element.isEnum) {
+      final annotation = _annotation(context.config, targetType);
+      if (annotation != null) {
+        return {
+//          'allOf': [
+//            {
+              r'$ref': schemaRefForType(targetType),
+//            },
+//            schemaMeta(targetType, context),
+//          ],
+        };
+      }
+    }
+
+    return null;
+  }
 }
 
 bool _canSerialize(JsonSerializable config, DartType type) {

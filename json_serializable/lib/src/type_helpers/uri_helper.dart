@@ -19,4 +19,17 @@ class UriHelper extends TypeHelper {
   String deserialize(
           DartType targetType, String expression, TypeHelperContext context) =>
       uriString.deserialize(targetType, expression, context.nullable, false);
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    if (!uriString.matches(targetType)) {
+      return null;
+    }
+
+    return {
+      ...schemaMeta(targetType, context),
+      'type': 'string',
+      'format': 'uri-template',
+    };
+  }
 }

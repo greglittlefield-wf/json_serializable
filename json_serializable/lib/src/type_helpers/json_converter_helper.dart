@@ -47,6 +47,16 @@ class JsonConverterHelper extends TypeHelper {
     return LambdaResult(
         '$expression$asContent', '${converter.accessString}.fromJson');
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    final converter = _typeConverter(targetType, context);
+    if (converter == null) {
+      return null;
+    }
+
+    return context.schema(converter.jsonType);
+  }
 }
 
 class _JsonConvertData {

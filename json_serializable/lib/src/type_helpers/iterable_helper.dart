@@ -90,6 +90,21 @@ class IterableHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
     return output;
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContextWithConfig context) {
+    if (!coreIterableTypeChecker.isAssignableFromType(targetType)) {
+      return null;
+    }
+
+    final itemType = coreIterableGenericType(targetType);
+
+    return {
+      ...schemaMeta(targetType, context),
+      'type': 'array',
+      'items': context.schema(itemType),
+    };
+  }
 }
 
 final _coreListChecker = const TypeChecker.fromUrl('dart:core#List');

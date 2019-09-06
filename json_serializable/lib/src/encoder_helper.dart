@@ -4,6 +4,8 @@
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:json_serializable/src/utils.dart';
+import 'package:json_serializable/type_helper.dart';
 
 import 'constants.dart';
 import 'helper_core.dart';
@@ -152,4 +154,81 @@ abstract class EncodeHelper implements HelperCore {
     }
     return false;
   }
+}
+
+
+abstract class JsonSchemaHelper implements HelperCore {
+  Map<String, dynamic> createSchema(Iterable<FieldElement> accessibleFields) {
+    final requiredProperties = <String>[];
+    final properties = Map.fromEntries(accessibleFields.map((field) {
+      // todo is name the result of jsonKeyFor(field)?
+
+      final key = jsonKeyFor(field);
+      final helperContext = getHelperContext(field);
+
+      if (!key.nullable) {
+        requiredProperties.add(key.name);
+      }
+
+      final docComment = getDartDocPlainText(field.documentationComment);
+
+      return MapEntry(key.name, {
+        ...helperContext.schema(field.type),
+        if (docComment != null) 'description': docComment,
+      });
+    }));
+
+    final docComment = getDartDocPlainText(element.documentationComment);
+    return {
+      'id': schemaIdForType(element.type),
+
+      'title': element.displayName,
+      if (docComment != null) 'description': docComment,
+
+      'properties': properties,
+      'required': requiredProperties,
+
+      if (config.disallowUnrecognizedKeys) 'additionalProperties': false,
+    };
+  }
+}
+
+
+// from package:analyzer/src/util/comment.dart
+/// Return the plain text from the given DartDoc [rawText], without delimiters.
+String getDartDocPlainText(String rawText) {
+  if (rawText == null) return null;
+
+  // Remove /** */.
+  if (rawText.startsWith('/**')) {
+    rawText = rawText.substring(3);
+  }
+  if (rawText.endsWith('*/')) {
+    rawText = rawText.substring(0, rawText.length - 2);
+  }
+  rawText = rawText.trim();
+
+  // Remove leading '* ' and '/// '.
+  var result = new StringBuffer();
+  var lines = rawText.split('\n');
+  for (var line in lines) {
+    line = line.trim();
+    if (line.startsWith('*')) {
+      line = line.substring(1);
+      if (line.startsWith(' ')) {
+        line = line.substring(1);
+      }
+    } else if (line.startsWith('///')) {
+      line = line.substring(3);
+      if (line.startsWith(' ')) {
+        line = line.substring(1);
+      }
+    }
+    if (result.isNotEmpty) {
+      result.write('\n');
+    }
+    result.write(line);
+  }
+
+  return result.toString();
 }

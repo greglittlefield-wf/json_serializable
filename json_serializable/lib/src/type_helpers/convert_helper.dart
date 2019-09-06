@@ -56,4 +56,16 @@ class ConvertHelper extends TypeHelper<TypeHelperContextWithConvert> {
     final asContent = asStatement(fromJsonData.paramType);
     return '${fromJsonData.name}($expression$asContent)';
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContextWithConvert context) {
+    final toJsonData = context.serializeConvertData;
+    if (toJsonData == null) {
+      return null;
+    }
+
+    return {
+      ...schemaMeta(targetType, context),
+    };
+  }
 }

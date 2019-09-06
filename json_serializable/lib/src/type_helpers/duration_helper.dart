@@ -40,6 +40,18 @@ class DurationHelper extends TypeHelper {
       'Duration(microseconds: $expression as int)',
     ).toString();
   }
+
+  @override
+  Map<String, dynamic> schema(DartType targetType, TypeHelperContext context) {
+    if (!_matchesType(targetType)) {
+      return null;
+    }
+
+    return {
+      ...schemaMeta(targetType, context),
+      'type': 'integer',
+    };
+  }
 }
 
 bool _matchesType(DartType type) =>
