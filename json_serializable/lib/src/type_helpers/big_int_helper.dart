@@ -27,7 +27,7 @@ class BigIntHelper extends TypeHelper {
     return {
       ...schemaMeta(targetType, context),
       'type': 'string',
-      'pattern': r'^[+-]?(?:0x)?[0-9]+$',
+      'pattern': r'^[+-]?(?:[0-9]+|(?:0x)?[0-9a-fA-F]+)$',
     };
   }
 }
