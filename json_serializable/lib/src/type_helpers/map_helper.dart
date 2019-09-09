@@ -121,11 +121,12 @@ class MapHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
     // final keyType = args[0];
     final valueType = args[1];
+    final valueSchema = context.schema(valueType);
 
     return {
       'type': 'object',
       // match all properties
-      'additionalProperties': context.schema(valueType),
+      if (valueSchema is! Map || valueSchema.isNotEmpty) 'additionalProperties': valueSchema,
     };
   }
 }

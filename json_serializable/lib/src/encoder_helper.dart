@@ -180,13 +180,13 @@ abstract class JsonSchemaHelper implements HelperCore {
 
     final docComment = getDartDocPlainText(element.documentationComment);
     return {
-      'id': schemaIdForType(element.type),
+      r'$id': schemaIdForType(element.type),
 
       'title': element.displayName,
       if (docComment != null) 'description': docComment,
 
-      'properties': properties,
-      'required': requiredProperties,
+      if (properties.isNotEmpty) 'properties': properties,
+      if (requiredProperties.isNotEmpty) 'required': requiredProperties,
 
       if (config.disallowUnrecognizedKeys) 'additionalProperties': false,
     };

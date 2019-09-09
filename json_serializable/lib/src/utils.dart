@@ -251,5 +251,5 @@ String schemaRefForType(InterfaceType type) {
   return '#/definitions/${schemaIdForType(type)}';
 }
 String schemaIdForType(InterfaceType type) {
-  return '${type.element.name}:${type.element.librarySource.uri}';
+  return '${type.element.librarySource.uri}/${type.element.name}'.replaceAll(RegExp(r'[^\w:.]'), '__');
 }
